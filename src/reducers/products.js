@@ -1,8 +1,8 @@
 import Types from '../actions/types';
 
 const initialState = {
-  products: null,
-  fetchingProducts: false
+  data: null,
+  beingFetched: false
 };
 
 export default (state = initialState, action) => {
@@ -13,21 +13,23 @@ export default (state = initialState, action) => {
           ...state
         };
       } else return { ...state };
-    case 'PRODUCTS_DATA_PENDING':
+    case 'FETCH_PRODUCTS_DATA_PENDING':
       return {
         ...state,
-        fetchingProducts: true,
-        products: null
+        beingFetched: true,
+        data: null
       };
-    case 'PRODUCTS_DATA_FULFILLED':
+    case 'FETCH_PRODUCTS_DATA_FULFILLED':
         return {
           ...state,
-          products: action.payload.products
+          beingFetched: false,
+          data: action.payload.data
         };
-    case 'PRODUCTS_DATA_REJECTED':
+    case 'FETCH_PRODUCTS_DATA_REJECTED':
       return {
         ...state,
-        products: []
+        beingFetched: false,
+        data: []
       };
   }
   return state;

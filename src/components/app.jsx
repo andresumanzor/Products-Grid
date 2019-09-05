@@ -1,5 +1,6 @@
 import React from 'react';
 import TopBar from './topBar';
+import Products from './products/products';
 
 export default 
     ({}) => {
@@ -7,7 +8,7 @@ export default
     return (
         <React.Fragment>
           <TopBar/>
-          Try #1 with all the basics set up!
+          <Products/>
         </React.Fragment>
     );
 };
