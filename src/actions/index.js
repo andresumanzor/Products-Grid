@@ -1,1 +1,1 @@
-export * from './actionsUser';
+export * from './actionsProducts';
