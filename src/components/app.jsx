@@ -6,9 +6,11 @@ export default
     ({}) => {
   
     return (
-        <React.Fragment>
+        <div style={{height: '100vh'}}>
           <TopBar/>
-          <Products/>
-        </React.Fragment>
+          <div className='app-container'>
+            <Products/>
+          </div>
+        </div>
     );
 };

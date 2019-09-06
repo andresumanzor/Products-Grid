@@ -1,0 +1,8 @@
+html, body {
+    height: 100%;
+}
+
+.app-container {
+    padding: 64px 15px 0px 15px;
+    height: 100%;
+}

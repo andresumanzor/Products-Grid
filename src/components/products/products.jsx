@@ -2,20 +2,32 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Pagination from "material-ui-flat-pagination";
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import { withStyles } from '@material-ui/core/styles';
 import {
-    fetchProducts
+    fetchProducts,
+    updateProducts
 } from '../../actions';
 import Grid from '@material-ui/core/Grid';
 import Product from './product';
-import {faces} from 'cool-ascii-faces'; //----------------Remove once done testing ui
+
+const styles = th => ({
+  sortBy: {
+      minWidth: '75px'
+  }
+});
 
 export class Products extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      products: null,
-      page: 1
+      page: 1,
+      sortBy: 'Default'
     };
   }
 
@@ -24,43 +36,88 @@ export class Products extends Component {
     this.props.fetchProducts(this.state.page);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    
+  static getDerivedStateFromProps(props, state) {
+    if (props.Products.nextDataPage !== state.nextDataPage) 
+      return { nextData: props.Products.nextData, nextDataPage: props.Products.nextDataPage }
+    return false;
   }
-//----------------Remove once done testing ui
-getRandomString = () => {
-    return (Math.random()).toString(36).substr(2);
-}
 
-getRandomInRange = (min, max) => {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-//----------------Remove once done testing ui
+  fetchNextPage = () => {
+    const { page, sortBy } = this.state;
+    const { Products } = this.props;
+    const { nextData, nextDataPage } = Products;
+
+    if (page === nextDataPage && nextData) 
+      this.props.updateProducts(page, sortBy, nextData)
+    else this.props.fetchProducts(page, sortBy)
+
+    window.scroll({top: 0, behavior: 'smooth'});
+  }
+
+  updatePageNumber = (page) => {
+    const pageNumberWithPaginatorOffset = page + 1;
+    this.setState({
+      page: pageNumberWithPaginatorOffset
+    }, () => this.fetchNextPage());
+  }
+
+  updateSortBy = (sortBy) => {
+    this.setState({
+      sortBy
+    }, () => this.props.fetchProducts(this.state.page, this.state.sortBy));
+  }
 
   render() {
-    const { page } = this.state;
-    const { Products } = this.props;
-    let { data, beingFetched } = Products; //----------------change once done testing ui
-    console.log('result:', Products)
+    const { updatePageNumber, updateSortBy } = this;
+    const { page, sortBy } = this.state;
+    const { Products, classes } = this.props;
+    const { data, beingFetched, nextData } = Products;
+    
+    if (data && data.length === 0) return <div>Error while retrieving from server...</div>
+    
+    const loader = (
+      <Grid
+        container
+        alignItems="center"
+        justify="center"
+        style={{height: '100%'}}
+      >
+        <img src="../../../assets/loading/dual_ring.svg"/>
+      </Grid>
+    )
 
-    if (!data || beingFetched) return <div>Loading...</div>
+    const sort = (
+      <FormControl>
+        <Select
+          value={sortBy}
+          onChange={(e) => updateSortBy(e.target.value)}
+          displayEmpty
+          name="age"
+          className={classes.sortBy}
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          <MenuItem value={'size'}>Size</MenuItem>
+          <MenuItem value={'price'}>Price</MenuItem>
+          <MenuItem value={'id'}>ID</MenuItem>
+        </Select>
+        <FormHelperText>Sort By</FormHelperText>
+      </FormControl>
+    );
 
-    // if (data.length === 0) return <div>Error while retrieving...</div>
-    //----------------Remove once done testing ui
-    data = [];
+    const paginator = (
+      <Pagination
+        limit={1}
+        offset={page - 1}
+        total={25}
+        onClick={(e, page) => updatePageNumber(page)}
+      />
+    )
 
-    for (let i = 0; i < 500; i++) {
-      data.push({
-        id: this.getRandomInRange(0, 100000) + '-' + this.getRandomString(),
-        size: this.getRandomInRange(12, 40),
-        price: this.getRandomInRange(1, 1000),
-        face: faces[Math.floor(Math.random() * 499) % faces.length],
-        date: new Date(Date.now() - this.getRandomInRange(1, 1000 * 3600 * 24 * 15)).toString()
-      })
-    }
-    //----------------Remove once done testing ui
-
-    console.log({data})
+    const endMessage = (
+      <span>~ end of catalogue ~</span>
+    )
 
     return (
         <Grid
@@ -69,8 +126,40 @@ getRandomInRange = (min, max) => {
             justify="space-evenly"
             alignItems="center"
             spacing={3}
+            style={{paddingTop: '15px', height: '100vh'}}
         >
-            {data.map((product, productKey) => <Product key={`product_${page}_${productKey}`} data={product}/>)}
+          <Grid
+            container
+            item
+            xs={12}
+            justify="flex-end"
+            alignItems="center"
+          >
+            {sort}
+          </Grid>
+          { !data || beingFetched
+            ? loader
+            : data.map((product, productKey) => <Product key={`product_${page}_${productKey}`} data={product}/>)}
+          {(nextData && nextData.length === 0) && (
+            <Grid
+              container
+              item
+              xs={12}
+              justify="center"
+              alignItems="center"
+            >
+              {endMessage} 
+            </Grid>
+          )}
+          <Grid
+            container
+            item
+            xs={12}
+            justify="center"
+            alignItems="center"
+          >
+            {paginator}  
+          </Grid>
         </Grid>
     );
   }
@@ -79,7 +168,8 @@ getRandomInRange = (min, max) => {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      fetchProducts
+      fetchProducts,
+      updateProducts
     },
     dispatch
   );
@@ -92,7 +182,7 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
+export default withStyles(styles)(connect(
   mapStateToProps,
   mapDispatchToProps
-)(Products);
+)(Products));
