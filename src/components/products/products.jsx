@@ -14,6 +14,7 @@ import {
 } from '../../actions';
 import Grid from '@material-ui/core/Grid';
 import Product from './product';
+import Ad from '../ad'
 
 const styles = th => ({
   sortBy: {
@@ -67,8 +68,22 @@ export class Products extends Component {
     }, () => this.props.fetchProducts(this.state.page, this.state.sortBy));
   }
 
+  renderProduct = (product, productKey) => {
+    const { page } = this.state;
+    if (productKey === 19) {
+      return (
+        <React.Fragment key={`product_${page}_${productKey}`}>
+          <Product key={`product_${page}_${productKey}`} data={product}/>
+          <Grid item container justify="center" alignItems="center">
+            <Ad/>
+          </Grid>
+        </React.Fragment>
+      )
+    } else return <Product key={`product_${page}_${productKey}`} data={product}/>
+  }
+
   render() {
-    const { updatePageNumber, updateSortBy } = this;
+    const { updatePageNumber, updateSortBy, renderProduct } = this;
     const { page, sortBy } = this.state;
     const { Products, classes } = this.props;
     const { data, beingFetched, nextData } = Products;
@@ -137,9 +152,11 @@ export class Products extends Component {
           >
             {sort}
           </Grid>
+
           { !data || beingFetched
             ? loader
-            : data.map((product, productKey) => <Product key={`product_${page}_${productKey}`} data={product}/>)}
+            : data.map(renderProduct)}
+          
           {(nextData && nextData.length === 0) && (
             <Grid
               container
@@ -151,6 +168,7 @@ export class Products extends Component {
               {endMessage} 
             </Grid>
           )}
+
           <Grid
             container
             item

@@ -6,3 +6,11 @@ html, body {
     padding: 64px 15px 0px 15px;
     height: 100%;
 }
+
+li {
+    list-style-type: none;
+}
+
+.MuiGridListTile-imgFullWidth {
+    transform: none !important
+}

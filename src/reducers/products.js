@@ -10,12 +10,6 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case Types.PRODUCTS_DATA:
-      if (action.payload) {
-        return {
-          ...state
-        };
-      } else return { ...state };
     case 'FETCH_PRODUCTS_DATA_PENDING':
       return {
         ...state,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
+import IsVisible from '../isVisible';
 
 const styles = th => ({
     paper_root: {
@@ -29,15 +29,14 @@ export class Product extends Component {
             display: true
         }
     }
+    
+    onHide = () => {
+        this.setState({display: false})
+    }
 
-    componentDidMount() {
-        window.addEventListener('scroll', this.isInViewport);
+    onShow = () => {
+        this.setState({display: true})
     }
-     
-    componentWillUnmount() {
-        window.removeEventListener('scroll', this.isInViewport);
-    }
-     
     
     getDate = (date) => {
         const today = Date.now();
@@ -52,21 +51,11 @@ export class Product extends Component {
         return `${Math.floor(differenceInDays)} ${dayConjuction} ago.`;
     }
 
-    isInViewport = () => {
-        if (!this.product) return false;
-        const rect = this.product.getBoundingClientRect();
-        const isVisible = !(rect.top <= -64); //using the topBar as the limit for the object's hidden piece
-        
-        console.log({scrollY: window.scrollY, rect, data: this.props.data})
-        if (!isVisible) this.setState({display: false})
-        else if (isVisible) this.setState({display: true})
-    }
-
     render() {
         const { data, classes } = this.props;
         const { price, face, size, date } = data;
         const { display } = this.state
-        const { getDate } = this;
+        const { getDate, onHide, onShow } = this;
 
         const productContent = (
             <React.Fragment>
@@ -77,11 +66,11 @@ export class Product extends Component {
         )
 
         return (
-            <Grid item xs={6} ref={(el) => this.product = el}>
+            <IsVisible isDisplayed={display} onHide={onHide} onShow={onShow}>
                 <Paper className={`${classes.paper_root} ${!display && classes.paper_inactive}`}>
                     {display && productContent}
                 </Paper>
-            </Grid>
+            </IsVisible>
         );
     }
 }

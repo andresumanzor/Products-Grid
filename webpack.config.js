@@ -106,7 +106,6 @@ module.exports = (env, argv) => {
                 {
                     if (stats.compilation.errors && stats.compilation.errors.length)
                     {
-                        console.log(stats.compilation.errors);
                         process.exit(1);
                     }
                     // ...
