@@ -10,11 +10,19 @@ import GridListTileBar from '@material-ui/core/GridListTileBar';
 export class Ad extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+        ad: null
+    }
   }
 
   shouldComponentUpdate(nexProps) {
       if (nexProps.CurrentAd !== this.props.CurrentAd) return false;
       return true;
+  }
+
+  componentDidMount() {
+    this.getAd();
   }
 
   getAd = () => {
@@ -23,17 +31,21 @@ export class Ad extends Component {
 
     while (CurrentAd === newAd) newAd = Math.floor(Math.random()*1000);
 
-    this.props.updateViewedAd(newAd);
-    return newAd;
+    this.setState({ad: newAd}, () => this.props.updateViewedAd(newAd))
   }
   
   render() {
+    const ad = (
+        <React.Fragment>
+            <img className="ad" src={`http://localhost:3000/ads/?r=${this.state.ad}`} alt="Sponsor"/>
+            <GridListTileBar
+                title={`Sponsor ${this.state.ad}`}
+            />
+        </React.Fragment>
+    )
     return (
         <GridListTile>
-            <img className="ad" src={`http://localhost:3000/ads/?r=${this.getAd()}`} alt="Sponsor"/>
-            <GridListTileBar
-                title='Sponsor'
-            />
+            {this.state.ad && ad}
         </GridListTile>
     );
   }

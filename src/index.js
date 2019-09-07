@@ -5,9 +5,10 @@ import { createStore, applyMiddleware } from 'redux';
 import ReduxPromise from 'redux-promise';
 import ReduxThunk from 'redux-thunk';
 import promise from 'redux-promise-middleware';
-import { SnackbarProvider } from 'notistack';
+import { MuiThemeProvider } from '@material-ui/core/styles';
 import reducers from './reducers';
 import App from './components/app';
+import theme from './themes/general';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -21,15 +22,9 @@ const store = createStoreWithMiddleware(reducers());
 
 const Jsx = () => (
     <Provider store={store}>
-        <SnackbarProvider
-            maxSnack={5}
-            anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right'
-            }}
-        >
+       <MuiThemeProvider theme={theme}>
             <App/>
-        </SnackbarProvider>
+       </MuiThemeProvider>
     </Provider>
 );
 
