@@ -27,7 +27,7 @@ export class Products extends Component {
 
     this.state = {
       page: 1,
-      sortBy: 'Default'
+      sortBy: ''
     };
   }
 

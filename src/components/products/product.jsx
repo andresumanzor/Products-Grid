@@ -4,10 +4,21 @@ import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = th => ({
-    paper: {
+    paper_root: {
         padding: th.spacing(4),
-        textAlign: 'center',
         color: th.palette.text.secondary,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        textAlign: 'center',
+        height: '170px',
+        transition: th.transitions.create("all", {
+            easing: th.transitions.easing.sharp, 
+            duration: th.transitions.duration.leavingScreen,
+        })
+    },
+    paper_inactive: {
+        backgroundColor: '#efefef'
     }
 });
 
@@ -44,8 +55,9 @@ export class Product extends Component {
     isInViewport = () => {
         if (!this.product) return false;
         const rect = this.product.getBoundingClientRect();
-        const isVisible = !(window.scrollY > rect.top + 140);
-        if (!isVisible) console.log({scrollY: window.scrollY, rect})
+        const isVisible = !(rect.top <= -64); //using the topBar as the limit for the object's hidden piece
+        
+        console.log({scrollY: window.scrollY, rect, data: this.props.data})
         if (!isVisible) this.setState({display: false})
         else if (isVisible) this.setState({display: true})
     }
@@ -57,16 +69,18 @@ export class Product extends Component {
         const { getDate } = this;
 
         const productContent = (
-            <Paper className={classes.paper}>
+            <React.Fragment>
                 <div style={{display:'block'}}><span style={{fontSize: size}}>{face}</span></div>
                 <div style={{display:'block'}}>{`$${parseFloat(price).toFixed(2)}`}</div>
                 <div style={{display:'block'}}>{getDate(date)}</div>
-            </Paper>
+            </React.Fragment>
         )
 
         return (
             <Grid item xs={6} ref={(el) => this.product = el}>
-                {display ? productContent : (<Paper className={classes.paper}><span>LOADING...</span></Paper>)}
+                <Paper className={`${classes.paper_root} ${!display && classes.paper_inactive}`}>
+                    {display && productContent}
+                </Paper>
             </Grid>
         );
     }
