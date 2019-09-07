@@ -45,6 +45,7 @@
   "scripts": {
     "start-frontend": "webpack-dev-server --mode development",
     "start-server": "json-server server/index.js --routes server/routes.json --middlewares server/handle-delay.js server/handle-ads.js",
+    "prestart": "npm install",
     "start": "concurrently \"npm-run-all -p start-server start-frontend\"",
     "build:dev": "webpack --mode development --progress",
     "build": "webpack --mode production --progress"
