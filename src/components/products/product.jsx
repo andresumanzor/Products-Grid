@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import IsVisible from '../isVisible';
 
 const styles = th => ({
@@ -59,9 +60,10 @@ export class Product extends Component {
 
         const productContent = (
             <React.Fragment>
-                <div style={{display:'block'}}><span style={{fontSize: size}}>{face}</span></div>
-                <div style={{display:'block'}}>{`$${parseFloat(price).toFixed(2)}`}</div>
-                <div style={{display:'block'}}>{getDate(date)}</div>
+                <Typography gutterBottom><span style={{fontSize: size}}>{face}</span></Typography>
+                <Typography>{`Size: ${size}px`}</Typography>
+                <Typography>{`Price: $${parseFloat(price).toFixed(2)}`}</Typography>
+                <Typography>{`Added: ${getDate(date)}`}</Typography>
             </React.Fragment>
         )
 
