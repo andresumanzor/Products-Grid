@@ -26,12 +26,16 @@ export class Ad extends Component {
   }
 
   getAd = () => {
-    const { CurrentAd } = this.props;
-    let newAd = Math.floor(Math.random()*1000);
+    const { CurrentAd, RestAds, adKey } = this.props;
+    if (RestAds.length > 0 && !isNaN(adKey) && RestAds[adKey]) 
+      this.setState({ad: RestAds[adKey]})
+    else {
+      let newAd = Math.floor(Math.random()*1000);
 
-    while (CurrentAd === newAd) newAd = Math.floor(Math.random()*1000);
+      while (CurrentAd === newAd) newAd = Math.floor(Math.random()*1000);
 
-    this.setState({ad: newAd}, () => this.props.updateViewedAd(newAd))
+      this.setState({ad: newAd}, () => this.props.updateViewedAd(newAd))
+    }
   }
   
   render() {
@@ -63,7 +67,8 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const { ad } = state;
   return {
-    CurrentAd: ad.current
+    CurrentAd: ad.current,
+    RestAds: ad.rest
   };
 }
 
