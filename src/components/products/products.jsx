@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import Pagination from "material-ui-flat-pagination";
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
@@ -28,20 +27,45 @@ export class Products extends Component {
 
     this.state = {
       page: 1,
-      sortBy: ''
+      sortBy: '',
+      data: null
     };
   }
 
 
   componentDidMount() {
     this.props.fetchProducts(this.state.page);
+    document.addEventListener('scroll', this.isBottom);
+  }
+  
+  componentWillUnmount() {
+    document.removeEventListener('scroll', this.isBottom);
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.Products.nextDataPage !== state.nextDataPage) 
-      return { nextData: props.Products.nextData, nextDataPage: props.Products.nextDataPage }
-    return false;
+    const data = state.data || [];
+    const propsData = props.Products.data;
+    const { nextDataPage, nextData } = props.Products;
+    let newState = {};
+
+    if (propsData && !_.isEqual(propsData, data))
+      if (state.page === 1) return {data: propsData}
+      else newState = {data: [...data, ...propsData]}
+    if (nextDataPage !== state.nextDataPage) 
+      newState = {...newState, nextData, nextDataPage }
+    return newState;
   }
+
+  isBottom = () => {
+    if (!this.productsContainer) return false;
+    const productsContainerRect = this.productsContainer.getBoundingClientRect();
+    const isBottom = window.innerHeight - this.productsContainer.scrollHeight === productsContainerRect.y;
+    
+    if (!this.props.Products.beingFetched && isBottom && (!this.props.Products.nextData || this.props.Products.nextData.length !== 0)) {
+      window.scrollBy(0, -100);
+      this.updatePageNumber();
+    }
+  };
 
   fetchNextPage = () => {
     const { page, sortBy } = this.state;
@@ -51,55 +75,49 @@ export class Products extends Component {
     if (page === nextDataPage && nextData) 
       this.props.updateProducts(page, sortBy, nextData)
     else this.props.fetchProducts(page, sortBy)
-
-    window.scroll({top: 0, behavior: 'smooth'});
   }
 
-  updatePageNumber = (page) => {
-    const pageNumberWithPaginatorOffset = page + 1;
+  updatePageNumber = () => {
     this.setState({
-      page: pageNumberWithPaginatorOffset
+      page: this.state.page + 1
     }, () => this.fetchNextPage());
   }
 
   updateSortBy = (sortBy) => {
     this.setState({
+      data: null,
+      page: 1,
       sortBy
     }, () => this.props.fetchProducts(this.state.page, this.state.sortBy));
   }
 
   renderProduct = (product, productKey) => {
     const { page } = this.state;
-    if (productKey === 19) {
+    const key = productKey + 1
+    const mod = 20;
+    if (key !== 0 && (key % mod === 0)) {
       return (
-        <React.Fragment key={`product_${page}_${productKey}`}>
-          <Product key={`product_${page}_${productKey}`} data={product}/>
+        <React.Fragment key={`product_${page}_${key}`}>
+          <Product data={product}/>
           <Grid item container justify="center" alignItems="center">
-            <Ad/>
+            <Ad adKey={key > mod ? (key/mod) - 1 : 0}/>
           </Grid>
         </React.Fragment>
       )
-    } else return <Product key={`product_${page}_${productKey}`} data={product}/>
+    } else return <Product key={`product_${page}_${key}`} data={product}/>
+  }
+
+  renderLoader = (height = 'auto') => {
+    return <img src="../../../assets/loading/dual_ring.svg" style={{height}}/>
   }
 
   render() {
-    const { updatePageNumber, updateSortBy, renderProduct } = this;
-    const { page, sortBy } = this.state;
+    const { updatePageNumber, updateSortBy, renderProduct, renderLoader } = this;
+    const { page, sortBy, data } = this.state;
     const { Products, classes } = this.props;
-    const { data, beingFetched, nextData } = Products;
+    const { beingFetched, nextData } = Products;
     
     if (data && data.length === 0) return <div>Error while retrieving from server...</div>
-    
-    const loader = (
-      <Grid
-        container
-        alignItems="center"
-        justify="center"
-        style={{height: '100%'}}
-      >
-        <img src="../../../assets/loading/dual_ring.svg"/>
-      </Grid>
-    )
 
     const sort = (
       <FormControl>
@@ -121,15 +139,6 @@ export class Products extends Component {
       </FormControl>
     );
 
-    const paginator = (
-      <Pagination
-        limit={1}
-        offset={page - 1}
-        total={25}
-        onClick={(e, page) => updatePageNumber(page)}
-      />
-    )
-
     const endMessage = (
       <span>~ end of catalogue ~</span>
     )
@@ -142,6 +151,7 @@ export class Products extends Component {
             alignItems="center"
             spacing={3}
             style={{paddingTop: '15px', height: '100vh'}}
+            ref={(el) => this.productsContainer = el}
         >
           <Grid
             container
@@ -154,10 +164,25 @@ export class Products extends Component {
           </Grid>
 
           { !data || beingFetched
-            ? loader
+            ? (
+              <Grid
+                container
+                alignItems="center"
+                justify="center"
+                style={{height: '100%'}}
+              >{renderLoader()}</Grid>
+            )
             : data.map(renderProduct)}
-          
-          {(nextData && nextData.length === 0) && (
+
+          {(nextData && nextData.length !== 0) 
+          ? (
+            <Grid
+              container
+              alignItems="center"
+              justify="center"
+            >{renderLoader('50px')}</Grid>
+          )
+          :(
             <Grid
               container
               item
@@ -168,16 +193,6 @@ export class Products extends Component {
               {endMessage} 
             </Grid>
           )}
-
-          <Grid
-            container
-            item
-            xs={12}
-            justify="center"
-            alignItems="center"
-          >
-            {paginator}  
-          </Grid>
         </Grid>
     );
   }
