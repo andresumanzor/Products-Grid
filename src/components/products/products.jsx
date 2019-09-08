@@ -70,16 +70,18 @@ export class Products extends Component {
 
   renderProduct = (product, productKey) => {
     const { page } = this.state;
-    if (productKey === 19) {
+    const key = productKey + 1
+    const mod = 20;
+    if (key !== 0 && (key % mod === 0)) {
       return (
-        <React.Fragment key={`product_${page}_${productKey}`}>
-          <Product key={`product_${page}_${productKey}`} data={product}/>
+        <React.Fragment key={`product_${page}_${key}`}>
+          <Product data={product}/>
           <Grid item container justify="center" alignItems="center">
-            <Ad/>
+            <Ad adKey={page - 1}/>
           </Grid>
         </React.Fragment>
       )
-    } else return <Product key={`product_${page}_${productKey}`} data={product}/>
+    } else return <Product key={`product_${page}_${key}`} data={product}/>
   }
 
   render() {
