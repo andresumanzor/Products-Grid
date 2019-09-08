@@ -112,8 +112,8 @@ export class Products extends Component {
   }
 
   render() {
-    const { updatePageNumber, updateSortBy, renderProduct, renderLoader } = this;
-    const { page, sortBy, data } = this.state;
+    const { updateSortBy, renderProduct, renderLoader } = this;
+    const { sortBy, data } = this.state;
     const { Products, classes } = this.props;
     const { beingFetched, nextData } = Products;
     
