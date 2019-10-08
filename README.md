@@ -33,5 +33,8 @@ Start with `npm start`. The `prestart` script will install the required node mod
 ### Demo?
 [Here](https://drive.google.com/file/d/1CVRDx3Uieb1-8uH_o78hcz4ac60s1gUb/view?usp=sharing)
 
+### Infinite Scrolling?
+[Yes, over here](https://github.com/andresumanzor/Products-Grid/tree/infinite-scrolling)
+
 ### Core Technologies
 React, Redux, Redux-Thunk, HTML, CSS, Bootstrap, Material-UI, Axios, Babel, Webpack and Cool-Ascii-Faces.
